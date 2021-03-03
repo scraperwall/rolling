@@ -40,7 +40,6 @@ func TestTimeWindowAdd(t *testing.T) {
 
 	for i := 0; i < 300; i++ {
 		incr := time.Duration(i * 6 * int(time.Second))
-		//log.Println(incr)
 		ts := startTs.Add(incr)
 		p.Add(1, ts)
 	}

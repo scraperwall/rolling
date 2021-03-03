@@ -77,7 +77,6 @@ func (w *TimePolicy) Add(value float64, ts time.Time) {
 	// ts is before our earliest bucket or after now: ignore it
 	now := time.Now()
 	if ts.Before(now.Add(-1*time.Duration(w.bucketSizeNano*w.numberOfBuckets64))) || now.Before(ts) {
-		//log.Println("not within window limits")
 		return
 	}
 
@@ -85,7 +84,6 @@ func (w *TimePolicy) Add(value float64, ts time.Time) {
 	defer w.lock.Unlock()
 
 	var adjustedTime, windowOffset = w.selectBucket(ts)
-	// log.Printf("time: %d, offset: %d\n", adjustedTime, windowOffset)
 	w.keepConsistent(adjustedTime, windowOffset)
 	w.window[windowOffset] = append(w.window[windowOffset], value)
 	w.lastWindowTime = adjustedTime
