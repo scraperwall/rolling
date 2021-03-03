@@ -30,6 +30,44 @@ func TestTimeWindow(t *testing.T) {
 	}
 }
 
+func TestTimeWindowAdd(t *testing.T) {
+	var bucketSize = time.Minute
+	var numberBuckets = 10
+	var w = NewWindow(numberBuckets)
+	var p = NewTimePolicy(w, bucketSize)
+	var now = time.Now()
+	var startTs = now.Add(-20 * time.Minute) // 10 minutes too early
+
+	for i := 0; i < 300; i++ {
+		incr := time.Duration(i * 6 * int(time.Second))
+		//log.Println(incr)
+		ts := startTs.Add(incr)
+		p.Add(1, ts)
+	}
+
+	if c := p.Reduce(Count); c != 100 {
+		t.Errorf("window contains %d items but should contain %d", int(c), 100)
+	}
+
+	var data []int
+
+	agg := func(w Window) float64 {
+		for _, bucket := range w {
+			data = append(data, len(bucket))
+		}
+
+		return 0.0
+	}
+
+	p.Reduce(agg)
+
+	for i, v := range data {
+		if v != 10 {
+			t.Errorf("bucket %d has %d items but should have 10", i, v)
+		}
+	}
+}
+
 func TestTimeWindowSelectBucket(t *testing.T) {
 	var bucketSize = time.Millisecond * 50
 	var numberBuckets = 10
